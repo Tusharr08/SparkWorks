@@ -39,20 +39,29 @@ jobs:
             if [[ "$fname" == *.ipynb ]]; then
               if [[ "$fname" =~ ^nb_([a-z]{3})_.+\.ipynb$ ]]; then
                 sub=${BASH_REMATCH[1]}
-                # this will always be 3 lowercase letters due to regex, so no need for length/digit check
+                # valid
               else
                 echo "❌ Invalid notebook name: $file"
                 echo "   - expected pattern: nb_<3-letter-subdomain>_<description>.ipynb (e.g. nb_fin_sales.ipynb)"
                 invalid=1
               fi
 
-            # Job checks (.py, .yml, .yaml) -> jb_<3-letter-subdomain>_<desc>.(py|yml|yaml)
+            # Job checks (.yml, .yaml) -> jb_<3-letter-subdomain>_<desc>.(yml|yaml)
             elif [[ "$fname" == *.yml || "$fname" == *.yaml ]]; then
-              if [[ "$fname" =~ ^jb_([a-z]{3})_.+\.(py|yml|yaml)$ ]]; then
+              if [[ "$fname" =~ ^jb_([a-z]{3})_.+\.(yml|yaml)$ ]]; then
                 sub=${BASH_REMATCH[1]}
+                # valid
               else
                 echo "❌ Invalid job name: $file"
-                echo "   - expected pattern: jb_<3-letter-subdomain>_<description>.(py|yml|yaml) (e.g. jb_hrm_load.yml)"
+                echo "   - expected pattern: jb_<3-letter-subdomain>_<description>.(yml|yaml) (e.g. jb_hrm_load.yml)"
                 invalid=1
               fi
             fi
+          done   # ✅ this was missing
+
+          if [[ $invalid -ne 0 ]]; then
+            echo "❌ Naming check failed."
+            exit 1
+          else
+            echo "✅ All files follow naming standards."
+          fi
