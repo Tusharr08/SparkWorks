@@ -1,5 +1,5 @@
 dag:
-  dag_id: jb_m2g_test_job
+  dag_id: jb_mfg_test_job
   schedule_interval: "0 0 * * *"  # Runs daily at midnight
   default_args:
     owner: "airflow"
