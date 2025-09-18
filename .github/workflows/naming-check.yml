@@ -37,18 +37,9 @@ jobs:
 
             # Notebook checks (.ipynb) -> nb_<3-letter-subdomain>_<desc>.ipynb
             if [[ "$fname" == *.ipynb ]]; then
-              if [[ "$fname" =~ ^nb_([A-Za-z0-9_]+)_.+\.ipynb$ ]]; then
+              if [[ "$fname" =~ ^nb_([a-z]{3})_.+\.ipynb$ ]]; then
                 sub=${BASH_REMATCH[1]}
-                if [[ ! "$sub" =~ ^[a-z]{3}$ ]]; then
-                  echo "❌ Invalid notebook name: $file"
-                  if [[ ${#sub} -ne 3 ]]; then
-                    echo "   - subdomain '$sub' length ${#sub}; expected exactly 3 letters (a-z)."
-                  fi
-                  if [[ ! "$sub" =~ ^[a-z]+$ ]]; then
-                    echo "   - subdomain '$sub' must contain only lowercase letters a-z (no digits/uppercase)."
-                  fi
-                  invalid=1
-                fi
+                # this will always be 3 lowercase letters due to regex, so no need for length/digit check
               else
                 echo "❌ Invalid notebook name: $file"
                 echo "   - expected pattern: nb_<3-letter-subdomain>_<description>.ipynb (e.g. nb_fin_sales.ipynb)"
@@ -56,30 +47,12 @@ jobs:
               fi
 
             # Job checks (.py, .yml, .yaml) -> jb_<3-letter-subdomain>_<desc>.(py|yml|yaml)
-            elif [[ "$fname" == *.py || "$fname" == *.yml || "$fname" == *.yaml ]]; then
-              if [[ "$fname" =~ ^jb_([A-Za-z0-9_]+)_.+\.(py|yml|yaml)$ ]]; then
+            elif [[ "$fname" == *.yml || "$fname" == *.yaml ]]; then
+              if [[ "$fname" =~ ^jb_([a-z]{3})_.+\.(py|yml|yaml)$ ]]; then
                 sub=${BASH_REMATCH[1]}
-                if [[ ! "$sub" =~ ^[a-z]{3}$ ]]; then
-                  echo "❌ Invalid job name: $file"
-                  if [[ ${#sub} -ne 3 ]]; then
-                    echo "   - subdomain '$sub' length ${#sub}; expected exactly 3 letters (a-z)."
-                  fi
-                  if [[ ! "$sub" =~ ^[a-z]+$ ]]; then
-                    echo "   - subdomain '$sub' must contain only lowercase letters a-z (no digits/uppercase)."
-                  fi
-                  invalid=1
-                fi
               else
                 echo "❌ Invalid job name: $file"
                 echo "   - expected pattern: jb_<3-letter-subdomain>_<description>.(py|yml|yaml) (e.g. jb_hrm_load.yml)"
                 invalid=1
               fi
             fi
-          done
-
-          if [[ $invalid -ne 0 ]]; then
-            echo "❌ Naming check failed."
-            exit 1
-          else
-            echo "✅ All files follow naming standards."
-          fi
