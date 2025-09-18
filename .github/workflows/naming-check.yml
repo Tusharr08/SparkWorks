@@ -1,4 +1,4 @@
-name: Check Naming standards
+name: Check Naming Standards
 
 on:
   pull_request:
@@ -8,34 +8,78 @@ on:
 jobs:
   naming-check:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout code (full history)
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Validate file naming standards
+      - name: Ensure origin/main is available
+        shell: bash
         run: |
-          echo "🔍 Checking file names..."
-          invalid==
+          git fetch origin main || true
 
-          for file in $(git diff --name-only origin/main...HEAD); do
-            if [["$file"== *.ipynb]]; then
-              if [[! "$file" =~ ^nb_[a-z]{3}_.+\.ipynb$]]; then
+      - name: Run naming standards check
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "🔎 Checking naming standards..."
+          invalid=0
+
+          changed=$(git diff --name-only origin/main...HEAD || true)
+          if [[ -z "${changed// }" ]]; then
+            echo "No changed files detected (diff is empty)."
+            exit 0
+          fi
+
+          for file in $changed; do
+            fname=$(basename "$file")
+
+            # Notebook checks (.ipynb) -> nb_<3-letter-subdomain>_<desc>.ipynb
+            if [[ "$fname" == *.ipynb ]]; then
+              if [[ "$fname" =~ ^nb_([A-Za-z0-9_]+)_.+\.ipynb$ ]]; then
+                sub=${BASH_REMATCH[1]}
+                if [[ ! "$sub" =~ ^[a-z]{3}$ ]]; then
+                  echo "❌ Invalid notebook name: $file"
+                  if [[ ${#sub} -ne 3 ]]; then
+                    echo "   - subdomain '$sub' length ${#sub}; expected exactly 3 letters (a-z)."
+                  fi
+                  if [[ ! "$sub" =~ ^[a-z]+$ ]]; then
+                    echo "   - subdomain '$sub' must contain only lowercase letters a-z (no digits/uppercase)."
+                  fi
+                  invalid=1
+                fi
+              else
                 echo "❌ Invalid notebook name: $file"
-                invalid_files=1
+                echo "   - expected pattern: nb_<3-letter-subdomain>_<description>.ipynb (e.g. nb_fin_sales.ipynb)"
+                invalid=1
               fi
-            elif [[ "$file" == *.yml ]]; then
-              if [[ ! "$file" =~ ^jb_[a-z]{3}_.+\.yml$ ]]; then
-                echo "❌ Invalid job name: $file"
-                invalid_files=1
-              fi
-            fi
-            done
 
-            if [[$invalid_files -ne 0]]; then
-              echo "❌ Naming check failed."
-              exit 1
-            else
-              echo "✅ All files follow naming standards."
+            # Job checks (.py, .yml, .yaml) -> jb_<3-letter-subdomain>_<desc>.(py|yml|yaml)
+            elif [[ "$fname" == *.py || "$fname" == *.yml || "$fname" == *.yaml ]]; then
+              if [[ "$fname" =~ ^jb_([A-Za-z0-9_]+)_.+\.(py|yml|yaml)$ ]]; then
+                sub=${BASH_REMATCH[1]}
+                if [[ ! "$sub" =~ ^[a-z]{3}$ ]]; then
+                  echo "❌ Invalid job name: $file"
+                  if [[ ${#sub} -ne 3 ]]; then
+                    echo "   - subdomain '$sub' length ${#sub}; expected exactly 3 letters (a-z)."
+                  fi
+                  if [[ ! "$sub" =~ ^[a-z]+$ ]]; then
+                    echo "   - subdomain '$sub' must contain only lowercase letters a-z (no digits/uppercase)."
+                  fi
+                  invalid=1
+                fi
+              else
+                echo "❌ Invalid job name: $file"
+                echo "   - expected pattern: jb_<3-letter-subdomain>_<description>.(py|yml|yaml) (e.g. jb_hrm_load.yml)"
+                invalid=1
+              fi
             fi
-                
+          done
+
+          if [[ $invalid -ne 0 ]]; then
+            echo "❌ Naming check failed."
+            exit 1
+          else
+            echo "✅ All files follow naming standards."
+          fi
