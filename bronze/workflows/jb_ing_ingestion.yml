@@ -1,6 +1,6 @@
 dag:
   dag_id: jb_ing_ingestion
-  schedule_interval: "0 0 * * *"  # Runs daily at midnight
+  schedule_interval: "0 0 * * "  # Runs daily at midnight
   default_args:
     owner: "airflow"
     start_date: "2023-10-01"
