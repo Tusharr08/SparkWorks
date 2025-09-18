@@ -1,0 +1,41 @@
+name: Check Naming standards
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  naming-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Validate file naming standards
+        run: |
+          echo "🔍 Checking file names..."
+          invalid==
+
+          for file in $(git diff --name-only origin/main...HEAD); do
+            if [["$file"== *.ipynb]]; then
+              if [[! "$file" =~ ^nb_[a-z]{3}_.+\.ipynb$]]; then
+                echo "❌ Invalid notebook name: $file"
+                invalid_files=1
+              fi
+            elif [[ "$file" == *.py ]]; then
+              if [[ ! "$file" =~ ^jb_[a-z]{3}_.+\.py$ ]]; then
+                echo "❌ Invalid job name: $file"
+                invalid_files=1
+              fi
+            fi
+            done
+
+            if [[$invalid_files -ne 0]]; then
+              echo "❌ Naming check failed."
+              exit 1
+            else
+              echo "✅ All files follow naming standards."
+            fi
+                
