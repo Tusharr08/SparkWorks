@@ -24,8 +24,8 @@ jobs:
                 echo "❌ Invalid notebook name: $file"
                 invalid_files=1
               fi
-            elif [[ "$file" == *.py ]]; then
-              if [[ ! "$file" =~ ^jb_[a-z]{3}_.+\.py$ ]]; then
+            elif [[ "$file" == *.yml ]]; then
+              if [[ ! "$file" =~ ^jb_[a-z]{3}_.+\.yml$ ]]; then
                 echo "❌ Invalid job name: $file"
                 invalid_files=1
               fi
