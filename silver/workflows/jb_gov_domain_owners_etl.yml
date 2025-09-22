@@ -1,6 +1,6 @@
 dag:
-  dag_id: jb_gov_domain_owners_etl
-  schedule_interval: "0 0 * * *"  # Runs daily at midnight
+  dag_id: 
+  schedule_interval: "0 0 * * "  # Runs daily at midnight
   default_args:
     owner: "airflow"
     start_date: "2023-10-01"
