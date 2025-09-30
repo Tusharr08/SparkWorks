@@ -9,7 +9,10 @@ on:
 jobs:
   compliance:
     runs-on: self-hosted
-
+    env:
+      RUNNER_TOOL_CACHE: /Users/tushargupta/actions/_tool
+      RUNNER_TEMP: /Users/tushargupta/actions/_temp
+      
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
