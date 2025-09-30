@@ -1,5 +1,5 @@
 dag:
-  dag_id: 
+  dag_id: jb_ptv_product
   schedule_interval: "0 0 * * "  # Runs daily at midnight
   default_args:
     owner: "airflow"
@@ -7,6 +7,6 @@ dag:
     retries: 1
     retry_delay: "5m"
 tasks:
-  - task_id: tsk_gov_domain_owners_etl
+  - task_id: tsk_ptv_product
     operator: BashOperator
     bash_command: "echo 'Hello, Airflow!'"
