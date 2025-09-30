@@ -19,8 +19,8 @@ jobs:
 
       - name: Check system Python
         run: |
-          python3 --version
-          which python3
+          python --version
+          which python
 
       - name: Install dependencies
         run: |
